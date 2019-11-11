@@ -16,7 +16,6 @@ def read_file(filename):
         temp.append(cell_obj.value.split("\n"))
     return temp
 
-
 def clean(document):
     doc = []
     translator = str.maketrans('','',string.punctuation)
@@ -29,6 +28,12 @@ def clean(document):
         doc.append(temp)
     return doc
 
+def getValue(document):
+    value =[]
+    for i in range(len(document)):
+        for j in range(len(document[i])):
+            value.append(document[i][j][-1:])
+    return value
 
 f = open('stopword.txt', 'r')
 content = f.read()
@@ -36,19 +41,24 @@ spl = content.rstrip()
 stop = spl.split()
 
 read = read_file("komentar.xlsx")
-cleaner = clean(read)
-print(cleaner)
-print("\n")
-preprocessing = pre.tokenization(cleaner)
-filtering = pre.filtering(preprocessing,stop)
-removing = pre.remove(filtering)
-print(removing)
-print("\n")
-stemming = pre.stemming(removing)
-print(stemming)
-print("\n")
-term = pre.term(stemming)
-print(term)
+print(read)
+vaueClass = getValue(read)
+
+
+
+# cleaner = clean(read)
+# print(cleaner)
+# print("\n")
+# preprocessing = pre.tokenization(cleaner)
+# filtering = pre.filtering(preprocessing,stop)
+# removing = pre.remove(filtering)
+# print(removing)
+# print("\n")
+# stemming = pre.stemming(removing)
+# print(stemming)
+# print("\n")
+# term = pre.term(stemming)
+# print(term)
 
 
 
