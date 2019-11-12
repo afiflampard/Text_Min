@@ -3,8 +3,10 @@ import numpy as np
 import csv
 import string
 import preprocessing as pre
+import tfidf as weighting
 import openpyxl
 import re
+import naiveBayes as naive
 
 def read_file(filename):
     wb_obj = openpyxl.load_workbook(filename)
@@ -41,25 +43,44 @@ spl = content.rstrip()
 stop = spl.split()
 
 read = read_file("komentar.xlsx")
-print(read)
-vaueClass = getValue(read)
+#print(read)
+valueClass = getValue(read)
+kelas = list(map(int,valueClass))
+print(kelas)
+
+# Hapus Tanda Baca
+cleaner = clean(read)
+print('Cleaner : ',cleaner)
+print("\n")
+#Filtering (menghapus kata tidak penting)
+tokenization = pre.tokenization(cleaner)
+print('Tokenization',tokenization)
+filtering = pre.filtering(tokenization,stop)
+removing = pre.remove(filtering)
+print('Removing : ',removing)
+print("\n")
+#Stemming (Jadi kata dasar)
+stemming = pre.stemming(removing)
+print('Stemming :',stemming)
+print("\n")
+#Term hasil preprocessing
+term = pre.term(stemming)
+print('Term :',term)
+
+#TF IDF
+binary = weighting.binaryWeighting(stemming,term)
+print("\nBinary Weighting:",binary)
+raw = weighting.rawWeighting(stemming,term)
+print("\nRaw Weighting:",raw)
+log = weighting.logFrequency(raw)
+print("\nLog Frequency:",log)
+DF = weighting.docFrequency(binary)
+print("\nDocument Frequency:",DF)
+IDF = weighting.idf(DF,cleaner)
+print("\nInverse Document Frequency :",IDF)
+hasil_tfidf = weighting.TFIDF(log, IDF)
+print("\ntf-idf:",hasil_tfidf)
 
 
-
-# cleaner = clean(read)
-# print(cleaner)
-# print("\n")
-# preprocessing = pre.tokenization(cleaner)
-# filtering = pre.filtering(preprocessing,stop)
-# removing = pre.remove(filtering)
-# print(removing)
-# print("\n")
-# stemming = pre.stemming(removing)
-# print(stemming)
-# print("\n")
-# term = pre.term(stemming)
-# print(term)
-
-
-
-
+prior = naive.prior(kelas)
+print(prior)

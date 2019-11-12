@@ -1,8 +1,10 @@
-import numpy
+import math
+import collections
 
-
-# Document class for saving term frequencies and document classification
-class Document:
-    def __init__(self, term_frequencies, classification):
-        self.frequencies = term_frequencies
-        self.classification = classification
+def prior(value):
+    prior = []
+    counter = collections.Counter(value)
+    label = list(counter.values())
+    for i in range(len(label)):
+        prior.append(label[i]/len(value))
+    return prior
