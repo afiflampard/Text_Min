@@ -1,6 +1,12 @@
 import math
 import collections
 
+def multiplyList(myList):
+    result=1
+    for x in myList:
+        result=result*x
+    return result
+
 def prior(value):
     prior = []
     counter = collections.Counter(value)
@@ -50,3 +56,51 @@ def peluang1(sumValueKelas1,countKelas,panjangTerm):
         pxa=(sumValueKelas1[i]+1)/(countKelas[1]+panjangTerm)
         p1.append(pxa)
     return p1
+
+def likelihood(rawData,peluang0,peluang1,prior):
+    likelihood0 = []
+    for i in range(0,len(rawData)):
+        count = 0
+        temp = []
+        for j in range(0,len(rawData[i])):
+            count = rawData[i][j] * peluang0[j]
+            if count != 0:
+                temp.append(count)
+        likelihood0.append(temp)
+        
+    likelihood1 = []
+    for i in range(0,len(rawData)):
+        count = 0
+        temp = []
+        for j in range(0,len(rawData[i])):
+            count = rawData[i][j] * peluang1[j]
+            if count != 0:
+                temp.append(count)
+        likelihood1.append(temp)
+    
+    lkhood0Total=[]
+    for i in range(len(likelihood0)):
+        lkhood0Total.append(multiplyList(likelihood0[i]))
+        
+    lkhood1Total=[]
+    for i in range(len(likelihood1)):
+        lkhood1Total.append(multiplyList(likelihood1[i]))
+      
+    prior0xlikelihood0 = []
+    for i in range(len(lkhood0Total)):
+        prior0xlikelihood0.append(lkhood0Total[i]*prior[0])
+    
+    prior1xlikelihood1 = []
+    for i in range(len(lkhood1Total)):
+        prior1xlikelihood1.append(lkhood1Total[i]*prior[1])
+    
+    decision = []
+    for i in range(0,len(prior0xlikelihood0)):
+        if prior0xlikelihood0[i] > prior1xlikelihood1[i]:
+            decision.append(0)
+        else:
+            decision.append(1)
+    return decision
+            
+    
+    

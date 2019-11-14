@@ -114,6 +114,8 @@ print('peluang 0',peluang0)
 print('peluang 1',peluang1)
 
 
+prior = naive.prior(kelas)
+print(prior)
 
 
 
@@ -126,6 +128,9 @@ reomvedata = pre.remove(filterdata)
 stemmingData = pre.stemming(reomvedata)
 rawData = weighting.rawWeighting(stemmingData,term)
 print(rawData)
+likelihood = naive.likelihood(rawData,peluang0,peluang1,prior)
+print(likelihood)
+
 # print(list(count_setiap_dokumen))
 
     # for i in range (len(raw)):
@@ -143,7 +148,5 @@ print(rawData)
 # hasil_tfidf = weighting.TFIDF(log, IDF)
 # print("\ntf-idf:",hasil_tfidf)
 
-# prior = naive.prior(kelas)
-# print(prior)
 
 
