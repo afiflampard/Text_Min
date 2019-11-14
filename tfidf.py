@@ -23,18 +23,15 @@ def count(term, array):
             n+=1
     return n
 
-raw=[]
-def rawWeighting(x,term):
-    for i in range(len(x)):
-        raw.append([])
-        for k in term:
-            j=0
-            if k in x[i]:
-                j=count(k,x[i])
-                raw[i].append(j)
-            else:
-                raw[i].append(0)    
-    return raw
+
+def rawWeighting(document, term):
+    doc = []
+    for i in range(len(document)):
+        word = []
+        for j in range(len(term)):
+            word.append(document[i].count(term[j]))
+        doc.append(word)
+    return doc
 
 #Log Frequency Weighting
 #array = array hasil raw weighting
