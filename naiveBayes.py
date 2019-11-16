@@ -20,17 +20,19 @@ def gabung(kelas,raw):
     
     
 def countKelas(count_setiap_dokumen):
-    listKelas = []
+    listkelas = []
     class0 = 0
     class1 = 0
-    for kelas,jumlah in count_setiap_dokumen:
-        if kelas==0:
-             class0 +=jumlah
-        elif kelas==1:
-            class1 +=jumlah
-    listKelas.append(class0)
-    listKelas.append(class1)
-    return listKelas    
+    for i in count_setiap_dokumen:
+        if i[0]==0:
+            class0 += i[1]
+        elif i[0]==1:
+            class1 += i[1]
+    listkelas.append(class0)
+    listkelas.append(class1)
+    return listkelas
+    
+   
 
 valueKelas1=[]
 valueKelas0=[]
@@ -44,18 +46,24 @@ def memisahkanKelas(gabung):
 def peluang0(sumValueKelas0,countKelas,panjangTerm):
     p0=[]
     pxa=0
-    for i in range(len (sumValueKelas0)):
-        pxa=(sumValueKelas0[i]+1)/(countKelas[0]+panjangTerm)
-        p0.append(pxa)
-    return p0
+    if len(sumValueKelas0)==0:
+        return 0;
+    else:
+        for i in range(len (sumValueKelas0)):
+            pxa=(sumValueKelas0[i]+1)/(countKelas[0]+panjangTerm)
+            p0.append(pxa)
+        return p0
         
 def peluang1(sumValueKelas1,countKelas,panjangTerm):
     p1=[]
     pxa=0
-    for i in range(len (sumValueKelas1)):
-        pxa=(sumValueKelas1[i]+1)/(countKelas[1]+panjangTerm)
-        p1.append(pxa)
-    return p1
+    if len(sumValueKelas1)==0:
+        return 0;
+    else:
+        for i in range(len (sumValueKelas1)):
+            pxa=(sumValueKelas1[i]+1)/(countKelas[1]+panjangTerm)
+            p1.append(pxa)
+        return p1
 
 def likelihood(rawData,peluang0,peluang1,prior):
     likelihood0 = []

@@ -2,19 +2,42 @@ import numpy as np
 import string
 import preprocessing as pre
 import tfidf as weighting
-import openpyxl
 import re
 import naiveBayes as naive
+import csv
 
-def read_file(filename):
-    wb_obj = openpyxl.load_workbook(filename)
-    sheet_obj = wb_obj.active 
-    m_row = sheet_obj.max_row 
-    temp = [] 
-    for i in range(1, m_row + 1): 
-        cell_obj = sheet_obj.cell(row = i, column = 1) 
-        temp.append(cell_obj.value.split("\n"))
-    return temp
+def openFile(file):
+    data=[]
+    readCSV = csv.DictReader(open(file), delimiter=";")
+    for row in readCSV:
+        data.append(row)
+    return data
+
+def teks(data):
+    dataTeks=[]
+    for row in data:
+        dataTeks.append(row['Teks'])
+    return dataTeks
+
+def teksDanKelas(data):
+    teksDanKelas=[[],[]]
+    for row in data:
+        teksDanKelas[0].append(row['Teks'])
+        teksDanKelas[1].append(row['Kelas'])
+    return teksDanKelas
+
+def kelas(data):
+    kelas=[]
+    for row in data:
+        kelas.append(row['Kelas'])
+    return kelas
+
+def nkelas(kelas):
+    nkelas=[]
+    for i in range(len(kelas)):
+        if kelas[i] not in nkelas:
+            nkelas.append(kelas[i])
+    return nkelas
 
 def clean(document):
     doc = []
@@ -35,118 +58,121 @@ def getValue(document):
             value.append(document[i][j][-1:])
     return value
 
+def akurasi(OriginalTeks,decision):
+    count = 0
+    total = 0
+    for i in range(0,len(OriginalTeks)):
+        if OriginalTeks[i] == decision[i]:
+            count += 1
+    total = (count/len(OriginalTeks)) * 100
+    return total
+
 f = open('stopword.txt', 'r')
 content = f.read()
 spl = content.rstrip()
 stop = spl.split()
 
-read = read_file("komentar.xlsx")
-#print(read)
-valueClass = getValue(read)
-kelas = list(map(int,valueClass))
-print(kelas)
+read = openFile("Training2.csv")
+openTeks = teks(read)
 
-# Hapus Tanda Baca
-cleaner = clean(read)
-# print('Cleaner : ',cleaner)
-# print("\n")
-#Filtering (menghapus kata tidak penting)
-tokenization = pre.tokenization(cleaner)
-# print('Tokenization',tokenization)
-filtering = pre.filtering(tokenization,stop)
-removing = pre.remove(filtering)
-# print('Removing : ',removing)
-# print("\n")
-#Stemming (Jadi kata dasar)
-stemming = pre.stemming(removing)
-# print('Stemming :',stemming)
-# print("\n")
-#Term hasil preprocessing
+kelas = kelas(read)
+kelas1 = list(map(int,kelas))
+
+#Ambil Teks Dan Kelas Array 2D dari Data Original
+readOriginal = openFile("komentar.csv")
+teksDanKelas = teksDanKelas(readOriginal)
+
+text = teksDanKelas[0]
+kelasOrigin = teksDanKelas[1]
+kelasOriginint = list(map(int,kelasOrigin))
+
+
+textToken = pre.Tokensisasi(text)
+
+preprocessing = pre.Tokensisasi(openTeks)
+lower = pre.lowerCase(preprocessing)
+filtering = pre.filtering(lower,stop)
+stemming = pre.stemming(filtering)
 term = pre.term(stemming)
 count_term = len(term)
-# print('Term :',term)
 
-#TF IDF
-binary = weighting.binaryWeighting(stemming,term)
-# print("\nBinary Weighting:",binary)
 raw = weighting.rawWeighting(stemming,term)
-# print("\nRaw Weighting:",raw)
-gabung = naive.gabung(kelas,raw)
-#zip gabung yg lain biar bisa jalan line 79 - 99 (valueKelas1 - sumValueKelas0)
-gabung1 = zip(kelas,raw)
 
-#Memisahkan antara kelas 1 & kelas 0
-valueKelas1=[]
-valueKelas0=[]
+gabung = zip(kelas1,raw)
+gabung1 = zip(kelas1,raw)
+
+valueKelas1 = []
+valueKelas0 = []
 for i in gabung1:
-    if i[0] == 0:
+    if i[0]==0:
         valueKelas0.append(i[1])
-    elif i[0] == 1:
+    else:
         valueKelas1.append(i[1])
+        
+sumValueKelas0 = []        
+sumValueKelas1 = []
+if len(valueKelas1) == 0:
+    sumValueKelas1 = []
+else:
+    for i in range(0,len(valueKelas1[0])):
+        countValueKelas1=0
+        for j in range(0,len(valueKelas1)):
+            countValueKelas1+=valueKelas1[j][i]
+        sumValueKelas1.append(countValueKelas1)
 
-#Jumlah Semua Value Kelas 1 Index
-sumValueKelas1=[]
-for i in range(0,len(valueKelas1[0])):
-    countValueKelas1=0
-    for j in range(0,len(valueKelas1)):
-        countValueKelas1+=valueKelas1[j][i]
-    sumValueKelas1.append(countValueKelas1)
+if len(valueKelas0) == 0:
+    sumValueKelas0 = []
+else:
+    for i in range(0,len(valueKelas0[0])):
+        countValueKelas0=0
+        for j in range(0,len(valueKelas0)):
+            countValueKelas0+=valueKelas0[j][i]
+        sumValueKelas0.append(countValueKelas0)  
 
-#Jumlah Semua Value Kelas 0 per Index
-sumValueKelas0=[]
-for i in range(0,len(valueKelas0[0])):
-    countValueKelas0=0
-    for j in range(0,len(valueKelas0)):
-        countValueKelas0+=valueKelas0[j][i]
-    sumValueKelas0.append(countValueKelas0)
-
-# print(list(gabung))
 count_dokumen = []
 for tup in gabung:
     count_dokumen.append(sum(tup[1]))
-count_setiap_dokumen = zip(kelas,count_dokumen)
+count_setiap_dokumen = zip(kelas1,count_dokumen)
 countPerKelas = naive.countKelas(count_setiap_dokumen)
-print(countPerKelas)
 
 peluang0 = naive.peluang0(sumValueKelas0,countPerKelas,count_term)
 peluang1 = naive.peluang0(sumValueKelas1,countPerKelas,count_term)
-print('peluang 0',peluang0)
-print('peluang 1',peluang1)
-
 
 prior = naive.prior(kelas)
-print(prior)
 
+dataT = openFile("Testing2.csv")
+openTeksT = teks(dataT)
 
+preprocessingT = pre.Tokensisasi(openTeksT)
+lowerT = pre.lowerCase(preprocessingT)
+filteringT = pre.filtering(lowerT,stop)
+stemmingT = pre.stemming(filteringT)
 
+penampung = []
+for i in range(0,len(preprocessingT)):
+    for j in range(0,len(textToken)):
+        if preprocessingT[i] == textToken[j]:
+            penampung.append(j)
+            break
+        
+kelasOriginal = []
+for i in range(0,len(penampung)):
+    kelasOriginal.append(kelasOriginint[penampung[i]])
+        
+rawDataT = weighting.rawWeighting(stemmingT,term)
 
-dataT = read_file("datatraining.xlsx")
-cleanerData = clean(dataT)
-token = pre.tokenization(cleanerData)
-filterdata = pre.filtering(token,stop)
-reomvedata = pre.remove(filterdata)
-stemmingData = pre.stemming(reomvedata)
-rawData = weighting.rawWeighting(stemmingData,term)
-print(rawData)
-likelihood = naive.likelihood(rawData,peluang0,peluang1,prior)
-print(likelihood)
+likelihoodT = naive.likelihood(rawDataT,peluang0,peluang1,prior)
+print('Decision',likelihoodT)
 
-# print(list(count_setiap_dokumen))
+akurasiTot = akurasi(kelasOriginal,likelihoodT)
 
-    # for i in range (len(raw)):
-    #     if kelas==0:
-    #         count.append(sum(raw[i]))
+positiveNegative=[]
+for i in range(len(likelihoodT)):
+    if likelihoodT[i]==0:
+        positiveNegative.append("Negative")
+    else:
+        positiveNegative.append("Positive")
 
+print('positiveNegative',positiveNegative)
 
-
-# log = weighting.logFrequency(raw)
-# print("\nLog Frequency:",log)
-# DF = weighting.docFrequency(binary)
-# print("\nDocument Frequency:",DF)
-# IDF = weighting.idf(DF,cleaner)
-# print("\nInverse Document Frequency :",IDF)
-# hasil_tfidf = weighting.TFIDF(log, IDF)
-# print("\ntf-idf:",hasil_tfidf)
-
-
-
+print('Akurasi = ',akurasiTot)

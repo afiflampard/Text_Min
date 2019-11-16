@@ -1,17 +1,30 @@
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+import re
 
 factory = StemmerFactory()
 stemmer = factory.create_stemmer()
 
 
-def tokenization(document):
-    documents = []
+def Tokensisasi(documents):
+    #Tokensisasi
+    tokenized=[]
+    for i in range(len(documents)):
+        documents[i] = re.sub(r'[^\w\s]','',documents[i])
+    for i in range(len(documents)):
+        documents[i] = re.sub(r'[\d]','',documents[i])
+    for i in range(len(documents)):
+        x=documents[i].split()
+        tokenized.append(x)   
+    return tokenized
+
+def lowerCase(document):
+    doc = []
     for i in range(len(document)):
+        temp = []
         for j in range(len(document[i])):
-            rep = document[i][j].replace(","," ")
-            spl = rep.lower().split(" ")
-            documents.append(spl)
-    return documents
+            temp.append(document[i][j].lower())
+        doc.append(temp)
+    return doc
 
 def filtering(document, stop):
     doc = []
