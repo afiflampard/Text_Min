@@ -72,7 +72,7 @@ content = f.read()
 spl = content.rstrip()
 stop = spl.split()
 
-read = openFile("Training2.csv")
+read = openFile("Training5.csv")
 openTeks = teks(read)
 
 kelas = kelas(read)
@@ -140,7 +140,7 @@ peluang1 = naive.peluang0(sumValueKelas1,countPerKelas,count_term)
 
 prior = naive.prior(kelas)
 
-dataT = openFile("Testing2.csv")
+dataT = openFile("Testing5.csv")
 openTeksT = teks(dataT)
 
 preprocessingT = pre.Tokensisasi(openTeksT)
